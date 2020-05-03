@@ -6,6 +6,7 @@ import string
 import requests
 
 from random import choice
+from datetime import datetime
 
 _remove_punc_pattern = re.compile('[\W_]+')
 
@@ -36,8 +37,8 @@ def _remove_punc(s):
     s = re.sub(' +', ' ', s)
     return s
 
-def _gen_pushshift_url(post_id):
-    return 'https://api.pushshift.io/reddit/comment/search/?link_id={}&lmit=1000'.format(post_id)
+def _gen_pushshift_url(post_id, timestamp):
+    return 'https://api.pushshift.io/reddit/comment/search/?link_id={}&limit=1000&before={}'.format(post_id, timestamp)
 
 """
 Opens game list file and extracts game names and game keys if supplied
@@ -67,9 +68,18 @@ Args:
     post id: str - 6 character post_id for giveaway, found in the url
 """
 def _retrieve_comments(post_id):
-    pushshift_endpoint = _gen_pushshift_url(post_id)
-    response = requests.get(pushshift_endpoint)
-    all_comments = response.json()['data']
+    all_comments = []
+    previous_epoch = int(datetime.utcnow().timestamp())
+    while True:
+        pushshift_endpoint = _gen_pushshift_url(post_id, previous_epoch)
+        response = requests.get(pushshift_endpoint).json()
+        if 'data' in response and len(response['data']) > 0:
+            data = response['data']
+            all_comments.extend(data)
+            previous_epoch = data[-1]['created_utc']
+        else:
+            break
+
     print('Retrieved {} comments'.format(len(all_comments)))
     comments = [comment for comment in all_comments if comment['body'] != '[removed]' and comment['body'] != '[deleted]']
     comments = [comment for comment in comments if comment['parent_id'][:3] == 't3_']
@@ -129,7 +139,6 @@ def _save_results(game_winners, game_keys, out_path):
 
     with open(out_path, 'w') as f:
         writer = csv.writer(f)
-        writer.writerows([('game', 'winner', 'key')])
         writer.writerows(results)
 
 @click.command()
