@@ -1,0 +1,53 @@
+import praw
+import click
+import pandas as pd
+
+from tqdm import tqdm
+from time import sleep
+from configparser import ConfigParser
+
+def _connect_to_reddit(config_file):
+    config = ConfigParser()
+    config.read(config_file)
+    client_id = config.get('redditapp', 'client_id')
+    client_secret = config.get('redditapp', 'client_secret')
+    username = config.get('redditapp', 'username')
+    password = config.get('redditapp', 'password')
+
+    reddit = praw.Reddit(
+        client_id=client_id,
+        client_secret=client_secret,
+        username=username,
+        password=password,
+        user_agent='pm_winners script'
+    )
+
+    return reddit
+
+def _gen_message(message, user=None, game=None, key=None):
+    if user:
+        message = message.replace('USER', user)
+    if game:
+        message = message.replace('GAME', game)
+    if key:
+        message = message.replace('KEY', key)
+
+    return message
+
+@click.command()
+@click.argument('winners_file', nargs=1)
+@click.option('-C', '--config_file', default='config.ini', help='path to config file containing nessessary details to connect to reddit app - client id, client secret, your reddit username, your reddit password')
+@click.option('-B', '--subject_template', default='You won GAME', help='Subject template for PM sent to each winner use keywords USER GAME and KEY (in caps) to act as placeholders for the winners username, the game name and the game key')
+@click.option('-B', '--body_template', default='Hey USER, you won GAME in my giveaway, here is the key: KEY', help='Body template for PM sent to each winner use keywords USER GAME and KEY (in caps) to act as placeholders for the winners username, the game name and the game key')
+@click.option('-S', '--message-sleep', default=0.1, help='Number of seconds to wait between sending each message')
+def pm_winners(winners_file, config_file, subject_template, body_template, message_sleep):
+    reddit = _connect_to_reddit(config_file)
+    winners = pd.read_csv(winners_file, names=['game', 'winner', 'key'], index_col='game')
+    for game, winner in tqdm(winners.iterrows()):
+        message_subject = _gen_message(subject_template, game=game)
+        message_body = _gen_message(body_template, user=winner.winner, game=game, key=winner.key)
+        reddit.redditor('therealrory').message(message_subject, message_body)
+        sleep(message_sleep)
+
+if __name__ == '__main__':
+    pm_winners()
