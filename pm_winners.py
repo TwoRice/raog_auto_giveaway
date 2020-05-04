@@ -6,6 +6,12 @@ from tqdm import tqdm
 from time import sleep
 from configparser import ConfigParser
 
+"""
+Connects to a reddit app through PRAW
+
+Args:
+    config_file: str - path to config file containing details to connect to reddit app
+"""
 def _connect_to_reddit(config_file):
     config = ConfigParser()
     config.read(config_file)
@@ -24,6 +30,18 @@ def _connect_to_reddit(config_file):
 
     return reddit
 
+"""
+Generates a messages from a template replacing placeholders with winner's username, the game titel
+and the game key
+
+Args:
+    message: str - message template
+
+Kwargs:
+    user: str (default=None) - username of the winner
+    game: str (default=None) - title of the game
+    key: str (default=None) - game key
+"""
 def _gen_message(message, user=None, game=None, key=None):
     if user:
         message = message.replace('USER', user)
@@ -41,6 +59,9 @@ def _gen_message(message, user=None, game=None, key=None):
 @click.option('-B', '--body_template', default='Hey USER, you won GAME in my giveaway, here is the key: KEY', help='Body template for PM sent to each winner use keywords USER GAME and KEY (in caps) to act as placeholders for the winners username, the game name and the game key')
 @click.option('-S', '--message-sleep', default=0.1, help='Number of seconds to wait between sending each message')
 def pm_winners(winners_file, config_file, subject_template, body_template, message_sleep):
+    """
+    Given a csv of each game's winner and game key, PMs each winner to let them know they have won, along with the game's key
+    """
     reddit = _connect_to_reddit(config_file)
     winners = pd.read_csv(winners_file, names=['game', 'winner', 'key'], index_col='game')
     for game, winner in tqdm(winners.iterrows()):
