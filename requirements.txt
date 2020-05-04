@@ -1,0 +1,10 @@
+certifi==2020.4.5.1
+chardet==3.0.4
+click==7.1.2
+idna==2.9
+praw==5.4.0
+prawcore==0.14.0
+psraw==0.1.2
+requests==2.23.0
+update-checker==0.17
+urllib3==1.25.9
