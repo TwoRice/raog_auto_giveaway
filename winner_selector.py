@@ -58,14 +58,26 @@ Args:
 def _get_game_list(game_list_path):
     game_list = pd.read_csv(game_list_path, header=None)
     num_columns = len(game_list.columns)
+
     if num_columns > 2:
         raise ValueError('Game list file should have a maximum of 2 columns (game names and game keys)')
     elif num_columns == 2:
         game_list.columns = ['game', 'key']
+        missing_keys = game_list[(game_list.key.isna()) | (game_list.key == ' ') | (game_list.key == '')]
+        if len(missing_keys) > 0:
+            print('WARNING: Games missing keys:')
+            print(missing_keys.game.values)
+            print()
     else:
         game_list.columns = ['game']
+
     game_list['game'] = game_list.game.apply(lambda game: _remove_punc(game).lower())
     game_list.set_index('game', inplace=True)
+
+    # Hacky fix for being able to find games which names contain entire other game names at the start of theirs
+    # eg. Cities in Motion & Cities in Motion 2. if we assume the game_list is passed in in alphabetical order,
+    # this "fixes" that issue.
+    game_list = game_list.iloc[::-1]
 
     return game_list
 
