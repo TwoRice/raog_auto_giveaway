@@ -1,9 +1,11 @@
 import re
 import csv
+import math
 import click
 import psraw
 import string
 import requests
+import pandas as pd
 
 from random import choice
 from datetime import datetime
@@ -54,19 +56,18 @@ Args:
     game_list_path: str - path to csv or txt file containing list of games
 """
 def _get_game_list(game_list_path):
-    with open(game_list_path, 'r') as f:
-        reader = csv.reader(f)
-        game_list_file_contents = list(reader)
-    columns = list(map(list, zip(*game_list_file_contents)))
-
-    game_keys = None
-    game_list = columns[0]
-    game_list = [_remove_punc(g.lower()) for g in game_list]
-    if len(columns) == 2:
-        game_keys = dict(game_list_file_contents)
-    elif len(columns) > 2:
+    game_list = pd.read_csv(game_list_path, header=None)
+    num_columns = len(game_list.columns)
+    if num_columns > 2:
         raise ValueError('Game list file should have a maximum of 2 columns (game names and game keys)')
-    return game_list, game_keys
+    elif num_columns == 2:
+        game_list.columns = ['game', 'key']
+    else:
+        game_list.columns = ['game']
+    game_list['game'] = game_list.game.apply(lambda game: _remove_punc(game).lower())
+    game_list.set_index('game', inplace=True)
+
+    return game_list
 
 """
 Fetches comments from giveawya post and removes all delted and child comments
@@ -90,7 +91,7 @@ def _retrieve_comments(post_id):
     print('Retrieved {} comments'.format(len(all_comments)))
     comments = [comment for comment in all_comments if comment['body'] != '[removed]' and comment['body'] != '[deleted]']
     comments = [comment for comment in comments if comment['parent_id'][:3] == 't3_']
-    print('Removed {} deleted and child comments'.format(len(all_comments) - len(comments)))
+    print('Removed {} deleted and child comments\n'.format(len(all_comments) - len(comments)))
 
     return comments
 
@@ -102,7 +103,7 @@ Args:
     game_list: list(str) - list of games in the giveaway
 """
 def _extract_user_choices(comments, game_list):
-    game_regex = r'\b(?:' + '|'.join(game_list) + r')\b'
+    game_regex = r'\b(?:' + '|'.join(game_list.index) + r')\b'
     user_games = {
         comment['author']: re.findall(game_regex, _remove_punc(comment['body'].lower()))
         for comment in comments
@@ -120,16 +121,22 @@ Args:
 """
 def _select_winners(user_games, game_list, num_choices):
     game_winners = {}
-    for game in game_list:
+    for game in game_list.index:
         nominees = None
         for i in range(num_choices):
             nominees = _user_game_search(user_games, game, i)
             if nominees: break
 
         if nominees:
-            game_winners[game] = choice(nominees)
+            game_list.loc[game, 'winner'] = choice(nominees)
+    leftover_games = game_list[game_list.winner.isna()]
 
-    return game_winners
+    if len(leftover_games) > 0:
+        print('No winners chosen/found for games:')
+        print(leftover_games.index.values)
+        print()
+
+    return game_list
 
 """
 Save the winner for each game to a csv
@@ -138,15 +145,15 @@ Args:
     game_winners: dict - map of games to the winners
     out_path: - path to csv file to save results to
 """
-def _save_results(game_winners, game_keys, out_path):
-    if game_keys:
-        results = [(game, winner, game_keys[game]) for game, winner in game_winners.items()]
-    else:
-        results = [(game, winner) for game, winner in game_winners.items()]
-
+def _save_results(game_winners, out_path):
     with open(out_path, 'w') as f:
         writer = csv.writer(f)
-        writer.writerows(results)
+        for game, row in game_winners.iterrows():
+            if type(row.winner) != float:
+                if 'key' in game_winners:
+                    writer.writerow((game, row.winner, row.key))
+                else:
+                    writer.writerow((game, row.winner))
 
 @click.command()
 @click.argument('post_id', nargs=1)
@@ -163,11 +170,11 @@ def choose_winners(post_id, game_list_path, num_choices, out_path):
         num_choices: int - number of games a single user can enter the giveaway to win.
         out_path: str - path for the output csv to save the winners to.
     """
-    game_list, game_keys = _get_game_list(game_list_path)
+    game_list = _get_game_list(game_list_path)
     comments = _retrieve_comments(post_id)
     user_games = _extract_user_choices(comments, game_list)
     game_winners = _select_winners(user_games, game_list, num_choices)
-    _save_results(game_winners, game_keys, out_path)
+    _save_results(game_winners, out_path)
 
 if __name__ == '__main__':
     choose_winners()
