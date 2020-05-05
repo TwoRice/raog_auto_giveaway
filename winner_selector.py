@@ -1,6 +1,5 @@
 import re
 import csv
-import math
 import click
 import psraw
 import string
