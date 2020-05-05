@@ -14,7 +14,7 @@ _remove_punc_pattern = re.compile('[\W_]+')
 Get users with the specified game as their nth choice
 
 Args:
-    user games: dict - 
+    user games: dict -
 
     game: string - game to search for
 
@@ -37,6 +37,13 @@ def _remove_punc(s):
     s = re.sub(' +', ' ', s)
     return s
 
+"""
+Generates a pushshift url to retrieve comments from a reddit post before a given time
+
+Args:
+    post_id: str - 6 character reddit post id
+    timestamp: int - timestamp of datetime to pull comments before, used for pagination
+"""
 def _gen_pushshift_url(post_id, timestamp):
     return 'https://api.pushshift.io/reddit/comment/search/?link_id={}&limit=1000&before={}'.format(post_id, timestamp)
 
@@ -53,10 +60,10 @@ def _get_game_list(game_list_path):
     columns = list(map(list, zip(*game_list_file_contents)))
 
     game_keys = None
-    game_list = columns[0] 
+    game_list = columns[0]
     game_list = [_remove_punc(g.lower()) for g in game_list]
     if len(columns) == 2:
-        game_keys = dict(game_list_file_contents) 
+        game_keys = dict(game_list_file_contents)
     elif len(columns) > 2:
         raise ValueError('Game list file should have a maximum of 2 columns (game names and game keys)')
     return game_list, game_keys
@@ -90,7 +97,7 @@ def _retrieve_comments(post_id):
 """
 Extracts the choices from the users' entries
 
-Args: 
+Args:
     comments: list - list of comments from the giveaway post
     game_list: list(str) - list of games in the giveaway
 """
@@ -107,7 +114,7 @@ def _extract_user_choices(comments, game_list):
 Selects 1 winner for each game
 
 Args:
-    user_games: dict - map of users and the games they have entered to win 
+    user_games: dict - map of users and the games they have entered to win
     game_list: list(str) - list of games in the giveaway
     num_choices: int - the maximum number of games a user can enter to win
 """
@@ -142,11 +149,20 @@ def _save_results(game_winners, game_keys, out_path):
         writer.writerows(results)
 
 @click.command()
-@click.argument('post_id', nargs=1) 
-@click.argument('game_list_path', nargs=1) 
-@click.argument('num_choices', nargs=1, type=int) 
-@click.argument('out_path', nargs=1) 
+@click.argument('post_id', nargs=1)
+@click.argument('game_list_path', nargs=1)
+@click.argument('num_choices', nargs=1, type=int)
+@click.argument('out_path', nargs=1)
 def choose_winners(post_id, game_list_path, num_choices, out_path):
+    """
+    Given a reddit giveaway post and a list of games to giveaway chooses winners for each game from the comments.
+
+    Args:
+        post_id: str - 6 character reddit post id for the giveaway.
+        game_list_path: str - path to csv of the list of games in the giveaway.
+        num_choices: int - number of games a single user can enter the giveaway to win.
+        out_path: str - path for the output csv to save the winners to.
+    """
     game_list, game_keys = _get_game_list(game_list_path)
     comments = _retrieve_comments(post_id)
     user_games = _extract_user_choices(comments, game_list)
