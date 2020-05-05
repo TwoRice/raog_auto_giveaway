@@ -42,7 +42,7 @@ python winner_selector.py fvwo50 game_list.csv 3 game_winners.csv
 
 #### Known Limitations
 * Games which contain the entire name of another game as the start of their name must be listed after the other game in your game list eg. If you are giving away Cities in Motion and Cities in Motion 2, Cities in Montion must come first in your game list, the easiest way to achieve this is to sort your game list into alphabetical order
-* Currently does not handle more than 1 copy of a game - it will only pick one winner per game.
+* May choose the same winner multiple times for 1 game for have multiple copies of the same game
 * Allows users to win multiple games - some giveaway operaters may want to limit their giveaway be more "fair" by only allowing users to win one game.
 
 ### PM Winners
