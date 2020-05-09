@@ -48,7 +48,10 @@ python winner_selector.py fvwo50 game_list.csv 3 game_winners.csv
 ### PM Winners
 This scripts handles sending private messages to all the winners, letting them know they have won/sending them the keys for the games they have won.
 
-### Prerequisites
+### Prerequisites & Setup
+Python 3 ([Install Guide](https://realpython.com/installing-python/))
+PIP ([Install Guide](https://pip.pypa.io/en/stable/installing/))
+
 Create a config file with details for a reddit app, details on how to do this below:
 1. While logged in to reddit go to https://www.reddit.com/prefs/apps/
 2. Click "create another app..."
@@ -64,6 +67,9 @@ client_secret=YOUR_CLIENT_SECRET
 username=YOUR_USERNAME
 password=YOUR_PASSWORD
 ```
+
+Run ```pip install -r requirements.txt``` to install nessessary packages to run scripts
+
 
 ### Arguments & Options
 Arguments (required):
