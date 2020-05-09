@@ -10,24 +10,6 @@ Python 3 ([Install Guide](https://realpython.com/installing-python/))
 
 PIP ([Install Guide](https://pip.pypa.io/en/stable/installing/))
 
-This next step is only nessessary to use the PM winners script.
-
-Create a config file with details for a reddit app, details on how to do this below:
-1. While logged in to reddit go to https://www.reddit.com/prefs/apps/
-2. Click "create another app..."
-3. Enter any name, select script, enter http://localhost:8080 into redirect url
-3. Click create app
-4. Copy client id, the client id is found under the app's name, it is a 14 character long string.
-5. Copy client secret, it should be listed as "secret" if you do see this, click edit on your app, and it should come up
-6. copy these details along with your reddit username and password into a file named congif.ini
-```
-[redditapp]
-client_id=YOUR_CLIENT_ID
-client_secret=YOUR_CLIENT_SECRET
-username=YOUR_USERNAME
-password=YOUR_PASSWORD
-```
-
 Run ```pip install -r requirements.txt``` to install nessessary packages to run scripts
 
 Instructions on using each of these scripts follow below:
@@ -73,7 +55,24 @@ python winner_selector.py fvwo50 game_list.csv 3 game_winners.csv
 ### PM Winners
 This scripts handles sending private messages to all the winners, letting them know they have won/sending them the keys for the games they have won.
 
-### Arguments & Options
+#### Prerequisites
+Create a config file with details for a reddit app, details on how to do this below:
+1. While logged in to reddit go to https://www.reddit.com/prefs/apps/
+2. Click "create another app..."
+3. Enter any name, select script, enter http://localhost:8080 into redirect url
+3. Click create app
+4. Copy client id, the client id is found under the app's name, it is a 14 character long string.
+5. Copy client secret, it should be listed as "secret" if you do see this, click edit on your app, and it should come up
+6. copy these details along with your reddit username and password into a file named congif.ini
+```
+[redditapp]
+client_id=YOUR_CLIENT_ID
+client_secret=YOUR_CLIENT_SECRET
+username=YOUR_USERNAME
+password=YOUR_PASSWORD
+```
+
+#### Arguments & Options
 Arguments (required):
 1. winners_file - The output of the winner_selector script: path to the csv file (a txt file will work too as long as its formatted like a csv) containing the winners for each game and optionally the game keys. The file should be formatted as below:
 ```
@@ -96,7 +95,7 @@ Options (Optional):
     * Default: 0.1
     * Number of seconds to wait between sending each message
 
-### Usage Examples
+#### Usage Examples
 Default
 ```
 python pm_winners game_winners.csv
@@ -114,5 +113,5 @@ Using a custom message
 python pm_winners game_winners.csv -S Hello USER you won in my giveaway! -B You won GAME, here's the game key KEY
 ```
 
-### Known Limitations
+#### Known Limitations
 * If you reddit account is not sufficiently old or does not have enough karma, you will not be able to mass private message users using a script, and this script likely will not work as intended
