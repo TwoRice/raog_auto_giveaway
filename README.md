@@ -7,9 +7,11 @@ There are currently two scripts in this repo
 
 ### Prerequisites & Setup
 Python 3 ([Install Guide](https://realpython.com/installing-python/))
+
 PIP ([Install Guide](https://pip.pypa.io/en/stable/installing/))
 
 This step is only nessessary to use the PM winners script.
+
 Create a config file with details for a reddit app, details on how to do this below:
 1. While logged in to reddit go to https://www.reddit.com/prefs/apps/
 2. Click "create another app..."
