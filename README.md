@@ -10,7 +10,7 @@ Python 3 ([Install Guide](https://realpython.com/installing-python/))
 
 PIP ([Install Guide](https://pip.pypa.io/en/stable/installing/))
 
-This step is only nessessary to use the PM winners script.
+This next step is only nessessary to use the PM winners script.
 
 Create a config file with details for a reddit app, details on how to do this below:
 1. While logged in to reddit go to https://www.reddit.com/prefs/apps/
