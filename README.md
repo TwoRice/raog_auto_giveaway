@@ -5,6 +5,29 @@ There are currently two scripts in this repo
 1. winner_selector
 2. pm_winners
 
+### Prerequisites & Setup
+Python 3 ([Install Guide](https://realpython.com/installing-python/))
+PIP ([Install Guide](https://pip.pypa.io/en/stable/installing/))
+
+This step is only nessessary to use the PM winners script.
+Create a config file with details for a reddit app, details on how to do this below:
+1. While logged in to reddit go to https://www.reddit.com/prefs/apps/
+2. Click "create another app..."
+3. Enter any name, select script, enter http://localhost:8080 into redirect url
+3. Click create app
+4. Copy client id, the client id is found under the app's name, it is a 14 character long string.
+5. Copy client secret, it should be listed as "secret" if you do see this, click edit on your app, and it should come up
+6. copy these details along with your reddit username and password into a file named congif.ini
+```
+[redditapp]
+client_id=YOUR_CLIENT_ID
+client_secret=YOUR_CLIENT_SECRET
+username=YOUR_USERNAME
+password=YOUR_PASSWORD
+```
+
+Run ```pip install -r requirements.txt``` to install nessessary packages to run scripts
+
 Instructions on using each of these scripts follow below:
 
 ### Winner Selector
@@ -47,29 +70,6 @@ python winner_selector.py fvwo50 game_list.csv 3 game_winners.csv
 
 ### PM Winners
 This scripts handles sending private messages to all the winners, letting them know they have won/sending them the keys for the games they have won.
-
-### Prerequisites & Setup
-Python 3 ([Install Guide](https://realpython.com/installing-python/))
-PIP ([Install Guide](https://pip.pypa.io/en/stable/installing/))
-
-Create a config file with details for a reddit app, details on how to do this below:
-1. While logged in to reddit go to https://www.reddit.com/prefs/apps/
-2. Click "create another app..."
-3. Enter any name, select script, enter http://localhost:8080 into redirect url
-3. Click create app
-4. Copy client id, the client id is found under the app's name, it is a 14 character long string.
-5. Copy client secret, it should be listed as "secret" if you do see this, click edit on your app, and it should come up
-6. copy these details along with your reddit username and password into a file named congif.ini
-```
-[redditapp]
-client_id=YOUR_CLIENT_ID
-client_secret=YOUR_CLIENT_SECRET
-username=YOUR_USERNAME
-password=YOUR_PASSWORD
-```
-
-Run ```pip install -r requirements.txt``` to install nessessary packages to run scripts
-
 
 ### Arguments & Options
 Arguments (required):
