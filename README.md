@@ -59,7 +59,7 @@ This scripts handles sending private messages to all the winners, letting them k
 Create a config file with details for a reddit app, details on how to do this below:
 1. While logged in to reddit go to https://www.reddit.com/prefs/apps/
 2. Click "create another app..."
-3. Enter any name, select script, enter http://localhost:8080 into redirect url
+3. Enter any name, select web-app, enter http://localhost:8080 into redirect url
 3. Click create app
 4. Copy client id, the client id is found under the app's name, it is a 14 character long string.
 5. Copy client secret, it should be listed as "secret" if you do see this, click edit on your app, and it should come up
@@ -68,8 +68,7 @@ Create a config file with details for a reddit app, details on how to do this be
 [redditapp]
 client_id=YOUR_CLIENT_ID
 client_secret=YOUR_CLIENT_SECRET
-username=YOUR_USERNAME
-password=YOUR_PASSWORD
+redirect_uri=YOUR_REDIRECT_URI
 ```
 
 #### Arguments & Options
