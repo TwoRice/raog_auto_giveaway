@@ -8,3 +8,5 @@ psraw==0.1.2
 requests==2.23.0
 update-checker==0.17
 urllib3==1.25.9
+tqdm == 4.46.0
+pandas == 1.0.3

@@ -6,6 +6,10 @@ from tqdm import tqdm
 from time import sleep
 from configparser import ConfigParser
 
+#OAuth imports:
+from OAuthTokenRetrieval import send_message, receive_connection
+import random
+
 """
 Connects to a reddit app through PRAW
 
@@ -17,16 +21,32 @@ def _connect_to_reddit(config_file):
     config.read(config_file)
     client_id = config.get('redditapp', 'client_id')
     client_secret = config.get('redditapp', 'client_secret')
-    username = config.get('redditapp', 'username')
-    password = config.get('redditapp', 'password')
+    #username = config.get('redditapp', 'username')
+    #password = config.get('redditapp', 'password')
+    redirect_uri = config.get('redditapp', 'redirect_uri')
 
     reddit = praw.Reddit(
         client_id=client_id,
         client_secret=client_secret,
-        username=username,
-        password=password,
-        user_agent='pm_winners script'
+        #username=username,
+        #password=password,
+        user_agent='giveawayscript/pm_winners/script',
+        redirect_uri = redirect_uri
     )
+
+    # OAuth here:
+    state = str(random.randint(0, 65000))
+    url = reddit.auth.url(["identity", "privatemessages"], state, "permanent")
+    print("Now open this url in your browser: " + url)
+
+    client = receive_connection()
+    data = client.recv(1024).decode("utf-8")
+    param_tokens = data.split(" ", 2)[1].split("?", 1)[1].split("&")
+    params = {
+        key: value
+        for (key, value) in [token.split("=") for token in param_tokens]
+    }
+    reddit.auth.authorize(params["code"])
 
     return reddit
 
