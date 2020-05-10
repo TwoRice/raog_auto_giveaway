@@ -67,7 +67,7 @@ def pm_winners(winners_file, config_file, subject_template, body_template, messa
     for game, winner in tqdm(winners.iterrows()):
         message_subject = _gen_message(subject_template, game=game)
         message_body = _gen_message(body_template, user=winner.winner, game=game, key=winner.key)
-        reddit.redditor('therealrory').message(message_subject, message_body)
+        reddit.redditor(winner.winner).message(message_subject, message_body)
         sleep(message_sleep)
 
 if __name__ == '__main__':
