@@ -7,4 +7,4 @@ prawcore==0.14.0
 psraw==0.1.2
 requests==2.23.0
 update-checker==0.17
-urllib3==1.25.9
+urllib3==1.26.5
